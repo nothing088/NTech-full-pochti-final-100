@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: telegram-shop
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB
+        value: telegram_shop
+      - key: MINI_APP_URL
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: YOOKASSA_SHOP_ID
+        sync: false
+      - key: YOOKASSA_SECRET_KEY
+        sync: false
+      - key: YOOKASSA_RETURN_URL
+        sync: false
+      - key: YOOKASSA_RECEIPT_ENABLED
+        value: "false"
+      - key: YOOKASSA_TAX_SYSTEM_CODE
+        value: ""
+      - key: YOOKASSA_VAT_CODE
+        value: ""
+      - key: YOOKASSA_PAYMENT_MODE
+        value: "full_payment"
+      - key: YOOKASSA_PAYMENT_SUBJECT
+        value: "commodity"
+      - key: ADMIN_SECRET
+        sync: false

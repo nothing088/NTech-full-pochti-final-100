@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NOTHING TECH Admin</title>
+<style>
+body { margin: 0; background: #050505; color: #fff; font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; }
+.wrap { max-width: 1050px; margin: auto; padding: 16px; }
+.panel { background: #111; border: 1px solid #282828; border-radius: 16px; padding: 14px; margin: 8px 0; }
+button, input, textarea, select { padding: 9px 12px; border-radius: 9px; border: 1px solid #333; background: #080808; color: #fff; font: inherit; font-size: 13px; }
+button { cursor: pointer; background: #fff; color: #000; font-weight: 800; }
+button:active { transform: scale(0.97); }
+.btn-danger { background: #301010; color: #ff5566; border-color: #601818; }
+.btn-secondary { background: #222; color: #ddd; border-color: #333; }
+.row { display: flex; gap: 8px; }
+.row > * { flex: 1; }
+.muted { color: #888; font-size: 11px; }
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.item { border-top: 1px solid #222; padding: 10px 0; }
+.variant-row, .tab-row { display: grid; grid-template-columns: 1fr 2fr auto; gap: 6px; margin: 6px 0; }
+.variant-row textarea { min-height: 55px; }
+.thumbs { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+.thumb { position: relative; width: 64px; height: 64px; border-radius: 8px; overflow: hidden; border: 1px solid #333; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; }
+.thumb-del { position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; border-radius: 50%; background: rgba(0,0,0,0.85); color: #fff; border: 0; display: grid; place-items: center; font-size: 11px; padding: 0; cursor: pointer; }
+@media(max-width: 700px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  .row, .variant-row, .tab-row { display: block; }
+  .row > * { width: 100%; margin: 3px 0; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="panel" style="display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <b>◼ NOTHING TECH</b>
+      <div class="muted">ADMIN CONTROL PANEL</div>
+    </div>
+    <button class="btn-secondary" onclick="logout()" style="padding:4px 10px;font-size:11px">Выйти</button>
+  </div>
+
+  <div id="login" class="panel">
+    <input id="secret" type="password" placeholder="ADMIN_SECRET" style="width:100%;box-sizing:border-box;margin-bottom:8px">
+    <button onclick="login()" style="width:100%">Войти в панель управления</button>
+  </div>
+
+  <div id="admin" style="display:none">
+    <div id="stats" class="grid"></div>
+    <div class="panel row">
+      <button onclick="products()">Товары</button>
+      <button onclick="categories()">Категории</button>
+      <button onclick="delivery()">Доставка</button>
+      <button onclick="faq()">FAQ</button>
+      <button onclick="orders()">Заказы</button>
+    </div>
+    <div id="content"></div>
+  </div>
+</div>
+
+<script>
+let token = localStorage.nt_admin || '';
+let categoriesCache = [];
+let editEditingId = null;
+let currentImageIds = [];
+
+const $ = x => document.getElementById(x);
+
+function H() { return { 'Content-Type': 'application/json', 'X-Admin-Secret': token }; }
+
+async function api(u, o = {}) {
+  o.headers = { ...(o.headers || {}), ...H() };
+  let r = await fetch(u, o);
+  let t = await r.text();
+  if (!r.ok) {
+    let msg = t;
+    try { msg = JSON.parse(t).detail || msg; } catch(e) {}
+    throw Error(msg || ('HTTP ' + r.status));
+  }
+  try { return t ? JSON.parse(t) : {}; } catch(e) { throw Error('Сервер вернул некорректный ответ'); }
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' }[m]));
+}
+
+async function login() {
+  token = $('secret').value.trim();
+  if (!token) return alert('Введите ADMIN_SECRET');
+  try {
+    await api('/api/admin/stats');
+    localStorage.nt_admin = token;
+    $('login').style.display = 'none';
+    $('admin').style.display = 'block';
+    await stats();
+    await products();
+  } catch(e) {
+    localStorage.removeItem('nt_admin');
+    token = '';
+    alert('Ошибка входа: ' + e.message);
+  }
+}
+
+function logout() {
+  localStorage.removeItem('nt_admin');
+  token = '';
+  location.reload();
+}
+
+async function stats() {
+  let s = await api('/api/admin/stats');
+  $('stats').innerHTML = Object.entries(s).map(x => `
+    <div class="panel">
+      <div class="muted">${x[0]}</div>
+      <h2 style="margin:4px 0 0">${x[1]}</h2>
+    </div>
+  `).join('');
+}
+
+function variantRow(v = { name: '', options: [] }) {
+  let opts = v.options.map(o => `${o.value}|${o.price}|${o.stock}`).join('\n');
+  return `
+  <div class="variant-row">
+    <input class="vname" value="${esc(v.name)}" placeholder="Название: Цвет">
+    <textarea class="vopts" placeholder="Значения построчно:\nBlack|0|5\nWhite|1000|3">${esc(opts)}</textarea>
+    <button type="button" class="btn-danger" onclick="this.parentElement.remove()">✕</button>
+  </div>`;
+}
+
+function tabRow(t = { title: '', content: '' }) {
+  return `
+  <div class="tab-row">
+    <input class="tt" value="${esc(t.title)}" placeholder="Вкладка (напр. Комплект)">
+    <textarea class="tc" placeholder="Текст описания">${esc(t.content)}</textarea>
+    <button type="button" class="btn-danger" onclick="this.parentElement.remove()">✕</button>
+  </div>`;
+}
+
+function collectVariants() {
+  return [...document.querySelectorAll('.variant-row')].map(r => {
+    let options = r.querySelector('.vopts').value.split('\n').map(x => x.split('|')).filter(x => x[0]).map(x => ({
+      value: x[0].trim(),
+      price: +(x[1] || 0),
+      stock: +(x[2] || 0)
+    }));
+    return { name: r.querySelector('.vname').value.trim(), options };
+  }).filter(x => x.name && x.options.length);
+}
+
+function collectTabs() {
+  return [...document.querySelectorAll('.tab-row')].map(r => ({
+    title: r.querySelector('.tt').value.trim(),
+    content: r.querySelector('.tc').value.trim()
+  })).filter(x => x.title && x.content);
+}
+
+function renderThumbs() {
+  $('thumbs').innerHTML = currentImageIds.map((fid, idx) => `
+    <div class="thumb">
+      <img src="/api/images/${fid}">
+      <button type="button" class="thumb-del" onclick="removeImage(${idx})">×</button>
+    </div>
+  `).join('');
+}
+
+function removeImage(idx) {
+  currentImageIds.splice(idx, 1);
+  renderThumbs();
+}
+
+async function handleFilesUpload(e) {
+  const files = e.target.files;
+  if (!files || !files.length) return;
+  for (let f of files) {
+    let fd = new FormData();
+    fd.append('file', f);
+    try {
+      let res = await fetch('/api/admin/upload', { method: 'POST', headers: { 'X-Admin-Secret': token }, body: fd });
+      let data = await res.json();
+      if (data.file_id) {
+        currentImageIds.push(data.file_id);
+      }
+    } catch(err) {
+      alert('Ошибка загрузки фото: ' + err.message);
+    }
+  }
+  renderThumbs();
+  e.target.value = '';
+}
+
+async function products() {
+  editEditingId = null;
+  currentImageIds = [];
+  try { categoriesCache = await api('/api/admin/categories'); } catch(e) {}
+  let d = await api('/api/admin/products');
+
+  $('content').innerHTML = `
+  <div class="panel" id="productForm">
+    <h2 id="formTitle">Новый товар</h2>
+    <input id="pn" placeholder="Название товара" style="width:100%;box-sizing:border-box;margin-bottom:8px">
+    <textarea id="pd" placeholder="Краткое описание товара" style="width:100%;box-sizing:border-box;margin-bottom:8px;height:60px"></textarea>
+    
+    <div class="row" style="margin-bottom:8px">
+      <input id="pp" type="number" placeholder="Цена (руб)">
+      <input id="ps" type="number" placeholder="Остаток (шт)">
+      <select id="pcat">
+        <option value="">Без категории</option>
+        ${categoriesCache.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}
+      </select>
+    </div>
+
+    <div style="margin:8px 0">
+      <b style="font-size:12px">Фотографии товара (можно выбрать несколько):</b>
+      <input type="file" id="pfiles" multiple accept="image/*" onchange="handleFilesUpload(event)" style="display:block;margin-top:4px">
+      <div id="thumbs" class="thumbs"></div>
+    </div>
+
+    <h3 style="margin:12px 0 4px">Характеристики и варианты (Цвет, Память и т.д.)</h3>
+    <div id="variants"></div>
+    <button type="button" class="btn-secondary" onclick="document.getElementById('variants').insertAdjacentHTML('beforeend',variantRow())">+ Добавить характеристику</button>
+
+    <h3 style="margin:14px 0 4px">Вкладки с описанием (Характеристики, Комплект и т.д.)</h3>
+    <div id="tabs"></div>
+    <button type="button" class="btn-secondary" onclick="document.getElementById('tabs').insertAdjacentHTML('beforeend',tabRow())">+ Добавить вкладку</button>
+    
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <button id="saveProductBtn" onclick="saveProduct()">Создать товар</button>
+      <button type="button" class="btn-secondary" id="cancelEditBtn" onclick="products()" style="display:none">Отмена</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Все товары (${d.length})</h2>
+    ${d.map(p => `
+      <div class="item" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div>
+          <b>${esc(p.name)}</b> — ${p.price} ₽ (остаток ${p.stock} шт.)
+          <div class="muted">Категория: ${(categoriesCache.find(c => c.id === p.category_id)?.name) || 'Нет'} · Фотографий: ${(p.image_file_ids || []).length} · Вкладок: ${p.tabs.length}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn-secondary" onclick="startEditProduct('${p.id}', ${encodeURIComponent(JSON.stringify(p))})">Изменить</button>
+          <button class="btn-danger" onclick="deleteProduct('${p.id}')">Удалить</button>
+        </div>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function startEditProduct(id, rawJson) {
+  let p = JSON.parse(decodeURIComponent(rawJson));
+  editEditingId = id;
+  $('formTitle').textContent = 'Редактирование: ' + p.name;
+  $('pn').value = p.name || '';
+  $('pd').value = p.description || '';
+  $('pp').value = p.price || 0;
+  $('ps').value = p.stock || 0;
+  $('pcat').value = p.category_id || '';
+  currentImageIds = p.image_file_ids || (p.image_file_id ? [p.image_file_id] : []);
+  renderThumbs();
+
+  $('variants').innerHTML = (p.variants || []).map(v => variantRow(v)).join('');
+  $('tabs').innerHTML = (p.tabs || []).map(t => tabRow(t)).join('');
+
+  $('saveProductBtn').textContent = 'Сохранить изменения';
+  $('cancelEditBtn').style.display = 'inline-block';
+  $('productForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function saveProduct() {
+  let body = {
+    name: $('pn').value.trim(),
+    description: $('pd').value.trim(),
+    price: +$('pp').value,
+    stock: +$('ps').value,
+    category_id: $('pcat').value,
+    image_file_ids: currentImageIds,
+    variants: collectVariants(),
+    tabs: collectTabs()
+  };
+  if (!body.name) return alert('Укажите название товара');
+
+  if (editEditingId) {
+    await api('/api/admin/products/' + editEditingId, { method: 'PUT', body: JSON.stringify(body) });
+  } else {
+    await api('/api/admin/products', { method: 'POST', body: JSON.stringify(body) });
+  }
+  products();
+  stats();
+}
+
+async function deleteProduct(id) {
+  if (!confirm('Вы уверены, что хотите полностью удалить этот товар?')) return;
+  await api('/api/admin/products/' + id, { method: 'DELETE' });
+  products();
+  stats();
+}
+
+async function categories() {
+  let d = await api('/api/admin/categories');
+  $('content').innerHTML = `
+  <div class="panel">
+    <h2>Добавить категорию</h2>
+    <div class="row">
+      <input id="cn" placeholder="Название (напр. Компьютеры)">
+      <button onclick="addCategory()">Добавить</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Категории (${d.length})</h2>
+    ${d.length ? d.map(c => `
+      <div class="item" style="display:flex;justify-content:space-between;align-items:center">
+        <b>${esc(c.name)}</b>
+        <button class="btn-danger" onclick="deleteCategory('${c.id}')">Удалить</button>
+      </div>
+    `).join('') : '<div class="muted">Категорий пока нет.</div>'}
+  </div>`;
+}
+
+async function addCategory() {
+  let name = $('cn').value.trim();
+  if (!name) return alert('Введите название категории');
+  await api('/api/admin/categories', { method: 'POST', body: JSON.stringify({ name }) });
+  categories();
+}
+
+async function deleteCategory(id) {
+  if (!confirm('Удалить эту категорию? Товары в ней останутся, но категория исчезнет из фильтров.')) return;
+  await api('/api/admin/categories/' + id, { method: 'DELETE' });
+  categories();
+}
+
+async function delivery() {
+  let d = await api('/api/admin/delivery');
+  $('content').innerHTML = `
+  <div class="panel">
+    <h2>Добавить способ доставки</h2>
+    <div class="row">
+      <input id="dn" placeholder="Название (напр. СДЭК)">
+      <input id="dp" type="number" placeholder="Стоимость">
+      <button onclick="addDelivery()">Добавить</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Способы доставки</h2>
+    ${d.map(x => `
+      <div class="item" style="display:flex;justify-content:space-between;align-items:center">
+        <div><b>${esc(x.name)}</b> — ${x.price} ₽</div>
+        <button class="btn-danger" onclick="removeDelivery('${x.id}')">Удалить</button>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+async function addDelivery() {
+  await api('/api/admin/delivery', { method: 'POST', body: JSON.stringify({ name: $('dn').value, price: +$('dp').value }) });
+  delivery();
+}
+
+async function removeDelivery(id) {
+  if (confirm('Удалить способ доставки?')) {
+    await api('/api/admin/delivery/' + id, { method: 'DELETE' });
+    delivery();
+  }
+}
+
+async function faq() {
+  let d = await api('/api/admin/faq');
+  $('content').innerHTML = `
+  <div class="panel">
+    <h2>FAQ</h2>
+    <div id="fq">${(d.items || []).map(x => `
+      <div class="item">
+        <input class="q" value="${esc(x.question)}" style="width:100%;margin-bottom:4px">
+        <textarea class="a" style="width:100%">${esc(x.answer)}</textarea>
+      </div>
+    `).join('')}</div>
+    <button onclick="saveFaq()" style="margin-top:8px">Сохранить FAQ</button>
+  </div>`;
+}
+
+async function saveFaq() {
+  let items = [...document.querySelectorAll('#fq .item')].map(x => ({
+    question: x.querySelector('.q').value,
+    answer: x.querySelector('.a').value
+  }));
+  await api('/api/admin/faq', { method: 'PUT', body: JSON.stringify({ items }) });
+  alert('Сохранено');
+}
+
+async function orders() {
+  let d = await api('/api/admin/orders');
+  $('content').innerHTML = `
+  <div class="panel">
+    <h2>Заказы (${d.length})</h2>
+    ${d.map(o => `
+      <div class="item" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div>
+          <b>#${o.order_id}</b> — ${o.total} ₽
+          <div class="muted">Клиент: @${esc(o.username || '—')}</div>
+        </div>
+        <select onchange="setStatus('${o.order_id}', this.value)">
+          ${['waiting_payment', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'].map(s => `
+            <option ${s === o.status ? 'selected' : ''}>${s}</option>
+          `).join('')}
+        </select>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+async function setStatus(id, status) {
+  await api('/api/admin/orders/' + id + '/status', { method: 'PUT', body: JSON.stringify({ status }) });
+  orders();
+}
+
+if (token) {
+  $('secret').value = token;
+  login();
+}
+</script>
+</body>
+</html>

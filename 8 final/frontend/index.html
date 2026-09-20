@@ -1,0 +1,1627 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#050505">
+<title>NOTHING TECH</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+  --bg: #070707;
+  --surface: #0d0d0d;
+  --surface2: #111;
+  --line: rgba(255,255,255,0.10);
+  --line2: rgba(255,255,255,0.06);
+  --text: #f4f4f2;
+  --muted: #8b8b8b;
+  --soft: #c7c7c3;
+  --accent: #f4f4f2;
+  --red: #ff334b;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { background: var(--bg); scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: radial-gradient(900px 500px at 80% -10%, rgba(255,255,255,0.07), transparent 60%), var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Arial, sans-serif;
+  min-height: 100vh;
+  padding-bottom: calc(88px + env(safe-area-inset-bottom));
+}
+button, input, textarea, select { font: inherit; outline: none; }
+.wrap { width: min(1120px, calc(100% - 24px)); margin: auto; }
+
+.tab-view { animation: tabFade 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes tabFade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+.glass {
+  background: rgba(14, 14, 14, 0.85);
+  border: 1px solid var(--line);
+  box-shadow: 0 16px 50px rgba(0,0,0,0.22);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Шапка */
+.top {
+  position: sticky;
+  top: 6px;
+  z-index: 25;
+  margin: 6px auto 12px;
+  height: 48px;
+  padding: 6px 10px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.brand { display: flex; align-items: center; gap: 8px; }
+.brand-mark { width: 28px; height: 28px; object-fit: contain; }
+.brand-name { font-size: 13px; font-weight: 900; letter-spacing: 0.15em; }
+.brand-sub { font-size: 7px; letter-spacing: 0.22em; color: #777; margin-top: 1px; }
+.socials { display: flex; gap: 5px; }
+.social {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  color: #aaa;
+  text-decoration: none;
+  font-size: 10px;
+}
+.social:active { background: #fff; color: #000; }
+
+/* Баннер Hero */
+.hero {
+  min-height: 200px;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  padding: 20px 16px;
+  display: flex;
+  align-items: flex-end;
+  position: relative;
+  background: linear-gradient(135deg, #111 0%, #090909 55%, #0d0d0d 100%);
+}
+.hero:after {
+  content: "";
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  right: -70px;
+  top: -80px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 50%;
+  box-shadow: 0 0 0 24px rgba(255,255,255,0.015), 0 0 0 48px rgba(255,255,255,0.01);
+}
+.hero-content { position: relative; z-index: 1; max-width: 620px; }
+.eyebrow { font-size: 8.5px; letter-spacing: 0.22em; color: #777; text-transform: uppercase; font-weight: 700; }
+.hero h1 { font-size: clamp(32px, 7.5vw, 56px); line-height: 0.9; margin: 8px 0; font-weight: 950; letter-spacing: -0.05em; }
+.hero p { margin: 0; color: #9a9a9a; line-height: 1.45; font-size: 12px; max-width: 490px; }
+
+/* Уменьшенные кнопки */
+.tools { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; margin-top: 13px; }
+.hero-btn, .primary {
+  height: 36px;
+  padding: 0 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #fff;
+  background: var(--accent);
+  color: #050505;
+  border-radius: 9px;
+  font-weight: 800;
+  font-size: 10.5px;
+  cursor: pointer;
+  transition: transform 0.12s, background 0.12s;
+}
+.hero-btn:active, .primary:active { transform: scale(0.97); }
+.tool-btn, .secondary {
+  height: 36px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.04);
+  color: #d7d7d3;
+  border-radius: 9px;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.tool-btn:active, .secondary:active { background: rgba(255,255,255,0.12); }
+
+.trustline {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: #707070;
+  font-size: 8.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 12px 0 6px;
+}
+.trustline span { padding-right: 8px; border-right: 1px solid #252525; }
+.trustline span:last-child { border-right: 0; }
+
+.categories { display: flex; gap: 5px; overflow-x: auto; padding: 4px 0 6px; scrollbar-width: none; }
+.categories::-webkit-scrollbar { display: none; }
+.cat {
+  white-space: nowrap;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #0d0d0d;
+  color: #888;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.cat.active { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+
+.section-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-bottom: 4px; }
+.section-head h2 { font-size: 19px; letter-spacing: -0.03em; margin: 2px 0 0; }
+.search {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  color: #fff;
+  background: #0b0b0b;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  margin-top: 4px;
+  font-size: 11.5px;
+}
+
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-top: 6px; }
+.card {
+  border-radius: 13px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  background: #0c0c0c;
+  border: 1px solid var(--line2);
+  transition: transform 0.15s, border-color 0.15s;
+}
+.card:active { transform: scale(0.98); }
+.card-top { position: relative; width: 100%; }
+
+.fav {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.65);
+  color: #888;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  cursor: pointer;
+  z-index: 3;
+}
+.fav.active {
+  color: var(--red) !important;
+  background: rgba(255, 51, 75, 0.16) !important;
+  border-color: rgba(255, 51, 75, 0.5) !important;
+  text-shadow: 0 0 6px rgba(255, 51, 75, 0.7);
+}
+.compare-dot {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.12);
+  z-index: 3;
+}
+.card-media {
+  width: 100%;
+  aspect-ratio: 1;
+  background: #111;
+  border-radius: 9px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.card-media img { width: 100%; height: 100%; object-fit: cover; }
+.placeholder { font-size: 15px; color: #333; font-weight: 800; }
+.card-body { padding: 5px 2px 2px; }
+.card b { font-size: 11.5px; font-weight: 800; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-desc { color: #666; font-size: 9px; line-height: 1.3; min-height: 23px; margin-top: 2px; display: -webkit-box; -webkit-line-clam: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.price { font-size: 13.5px; font-weight: 900; margin-top: 3px; }
+
+.card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 6px; }
+.btn-card-action {
+  height: 28px;
+  border-radius: 6px;
+  font-size: 9px;
+  font-weight: 800;
+  border: 1px solid var(--line);
+  background: #141414;
+  color: #ccc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 2px;
+}
+.btn-card-action.primary-cart { background: #f4f4f2; color: #000; border-color: #f4f4f2; }
+.btn-card-action:active { transform: scale(0.96); }
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px;
+}
+.step-btn {
+  background: transparent;
+  border: 0;
+  color: #000;
+  font-size: 13px;
+  font-weight: 900;
+  width: 22px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.step-btn:active { transform: scale(0.85); }
+.step-val { font-size: 10px; font-weight: 900; color: #000; }
+
+.compare-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(112px + env(safe-area-inset-bottom));
+  z-index: 56;
+  width: min(420px, calc(100% - 24px));
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: rgba(16, 16, 16, 0.94);
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+  backdrop-filter: blur(16px);
+}
+.compare-bar.show { display: flex; }
+.compare-bar span { font-size: 9.5px; font-weight: 700; color: #aaa; }
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+.compare-card { padding: 8px; border-radius: 11px; }
+.compare-card img { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 8px; background: #111; }
+.compare-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 7px 0; border-bottom: 1px solid var(--line2); font-size: 10px; color: #888; }
+.compare-row b { color: #eee; }
+
+/* Smart Picker */
+.picker {
+  position: fixed;
+  inset: 0;
+  z-index: 105;
+  background: rgba(0,0,0,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  backdrop-filter: blur(14px);
+}
+.picker.show { display: flex; }
+.picker-box {
+  width: min(420px, 100%);
+  padding: 16px;
+  border-radius: 16px;
+  background: #0c0c0c;
+  border: 1px solid var(--line);
+}
+.picker-q { font-size: 17px; font-weight: 900; letter-spacing: -0.04em; margin: 4px 0 10px; }
+.picker-options { display: grid; gap: 6px; }
+.picker-option {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: #121212;
+  color: #ccc;
+  border-radius: 9px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+}
+.picker-option:active { background: #f4f4f2; color: #000; }
+
+/* Модалка товара на весь экран */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0,0,0,0.85);
+  display: none;
+  align-items: flex-end;
+  backdrop-filter: blur(12px);
+}
+.modal.show { display: flex; }
+.product-sheet {
+  width: 100%;
+  max-height: 92dvh;
+  background: #0b0b0b;
+  border: 1px solid var(--line);
+  border-radius: 20px 20px 0 0;
+  overflow-y: auto;
+  padding: 12px 14px calc(24px + env(safe-area-inset-bottom));
+  box-shadow: 0 -15px 50px rgba(0,0,0,0.9);
+}
+.product-close {
+  float: right;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  border: 1px solid var(--line);
+  background: #171717;
+  color: #fff;
+  font-size: 15px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+/* Компоновка 1/4 с галереей фото */
+.product-top-row {
+  display: grid;
+  grid-template-columns: 106px 1fr;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 4px;
+}
+.gallery-wrap {
+  width: 106px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.product-quarter-media {
+  position: relative;
+  width: 106px;
+  height: 106px;
+  border-radius: 11px;
+  background: #121212;
+  border: 1px solid var(--line);
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+.product-quarter-media img { width: 100%; height: 100%; object-fit: contain; }
+.gallery-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 2px;
+}
+.gal-btn {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: #fff;
+  width: 22px;
+  height: 20px;
+  border-radius: 5px;
+  font-size: 10px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+}
+.gal-btn:active { background: #fff; color: #000; }
+.gal-counter { font-size: 9px; color: #888; font-weight: 700; }
+
+.product-top-info { display: flex; flex-direction: column; min-width: 0; }
+.product-title { font-size: 15.5px; font-weight: 900; line-height: 1.15; margin: 2px 0 3px; word-break: break-word; }
+.product-top-info .price { font-size: 14.5px; margin-top: 2px; }
+
+.detail-stepper-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  width: 100%;
+}
+.stepper-detail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  background: var(--accent);
+  border-radius: 7px;
+  padding: 0 4px;
+  flex: 1;
+}
+.step-btn-detail {
+  background: transparent;
+  border: 0;
+  color: #000;
+  font-size: 14px;
+  font-weight: 900;
+  width: 26px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.product-bottom-block { margin-top: 10px; border-top: 1px solid var(--line2); padding-top: 10px; }
+.variant { margin-bottom: 9px; }
+.variant-title { font-weight: 800; font-size: 9px; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+.opts { display: flex; gap: 5px; flex-wrap: wrap; }
+.opt {
+  padding: 5px 8px;
+  border-radius: 7px;
+  border: 1px solid #282828;
+  background: #121212;
+  color: #888;
+  cursor: pointer;
+  font-size: 9.5px;
+  font-weight: 700;
+}
+.opt.sel { background: var(--accent); color: #000; border-color: var(--accent); }
+.tabs { display: flex; gap: 4px; margin: 8px 0 4px; overflow-x: auto; scrollbar-width: none; }
+.tab { padding: 5px 8px; border-radius: 6px; background: #131313; color: #777; border: 1px solid #242424; font-size: 9px; font-weight: 700; cursor: pointer; }
+.tab.active { background: #f4f4f2; color: #000; }
+.tabbody { padding: 9px; border-radius: 9px; background: #101010; color: #a0a0a0; font-size: 10.5px; line-height: 1.45; white-space: pre-wrap; }
+
+/* Трекинг заказов (Timeline доставки) */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  padding: 10px 4px 6px;
+}
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+}
+.timeline-item:not(:last-child):after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 22px;
+  bottom: -12px;
+  width: 2px;
+  background: #252525;
+}
+.timeline-item.done:not(:last-child):after { background: #fff; }
+.timeline-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #181818;
+  border: 2px solid #333;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  z-index: 2;
+  flex-shrink: 0;
+}
+.timeline-item.done .timeline-dot {
+  background: #fff;
+  border-color: #fff;
+  color: #000;
+  font-weight: 900;
+}
+.timeline-item.active .timeline-dot {
+  background: #101010;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.2);
+}
+.timeline-title { font-size: 12px; font-weight: 800; }
+.timeline-sub { font-size: 10px; color: #777; margin-top: 1px; }
+
+/* Управление в корзине */
+.stepper-cart {
+  display: flex;
+  align-items: center;
+  background: #181818;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  height: 26px;
+  padding: 0 2px;
+}
+.step-btn-cart {
+  background: transparent;
+  border: 0;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  width: 20px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.btn-remove-cart {
+  background: #1f1414;
+  border: 1px solid rgba(255, 51, 75, 0.35);
+  color: var(--red);
+  font-size: 13px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Профиль */
+.profile-subnav { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin: 10px 0 7px; }
+.subtab-btn {
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #101010;
+  color: #888;
+  font-weight: 800;
+  font-size: 10px;
+  cursor: pointer;
+}
+.subtab-btn.active { background: #f4f4f2; color: #000; border-color: #f4f4f2; }
+
+/* Нижняя панель */
+.bottom {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: max(6px, env(safe-area-inset-bottom));
+  z-index: 60;
+  width: min(500px, calc(100% - 14px));
+  height: 52px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+  padding: 3px;
+  border-radius: 15px;
+  background: rgba(13, 13, 13, 0.94);
+  border: 1px solid var(--line);
+  box-shadow: 0 14px 45px rgba(0,0,0,0.6);
+  backdrop-filter: blur(20px);
+}
+.nav-btn {
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: #666;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-size: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.nav-btn strong { font-size: 14px; line-height: 1; }
+.nav-btn.active { background: #191919; color: #fff; }
+
+.cart-float {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(66px + env(safe-area-inset-bottom));
+  z-index: 55;
+  height: 36px;
+  padding: 0 15px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 900;
+  cursor: pointer;
+  background: var(--accent);
+  color: #050505;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+}
+
+.panel { padding: 12px; border-radius: 14px; margin-bottom: 7px; }
+.toast {
+  position: fixed;
+  left: 50%;
+  top: 12px;
+  transform: translate(-50%, -10px);
+  z-index: 120;
+  background: #f4f4f2;
+  color: #050505;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.2s ease;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top glass">
+    <div class="brand">
+      <img class="brand-mark" src="/assets/nothing-tech.svg" alt="Nothing Tech">
+      <div>
+        <div class="brand-name">NOTHING TECH</div>
+        <div class="brand-sub">ТЕХНИКА БЕЗ ЛИШНЕГО</div>
+      </div>
+    </div>
+    <div class="socials">
+      <a class="social" href="#" onclick="showToast('Telegram — ссылка будет добавлена');return false">✈</a>
+      <a class="social" href="#" onclick="showToast('Instagram — ссылка будет добавлена');return false">IG</a>
+      <a class="social" href="#" onclick="showToast('YouTube — ссылка будет добавлена');return false">▶</a>
+    </div>
+  </header>
+
+  <main id="app" class="tab-view"></main>
+
+  <footer style="margin-top: 24px; padding: 14px 0; border-top: 1px solid var(--line2); display: flex; flex-direction: column; align-items: center; gap: 6px;">
+    <div style="font-size: 8px; color: #666; letter-spacing: 0.12em; text-transform: uppercase;">NOTHING TECH · ТЕХНИКА БЕЗ ЛИШНЕГО</div>
+    <div style="font-size: 8px; color: #444;">© 2026. All rights reserved.</div>
+  </footer>
+</div>
+
+<div id="compareBar" class="compare-bar">
+  <span>Сравнение: 0/2</span>
+  <button class="primary" style="height: 26px; padding: 0 9px; font-size: 9.5px; border-radius: 6px;" onclick="openCompare()">Сравнить</button>
+</div>
+
+<div id="picker" class="picker" onclick="if(event.target===this)closePicker()">
+  <div class="picker-box">
+    <div class="eyebrow">SMART PICK</div>
+    <div class="picker-q">Что вы ищете?</div>
+    <div class="picker-options">
+      <button class="picker-option" onclick="pickerChoose('phone')">Смартфон для повседневного использования</button>
+      <button class="picker-option" onclick="pickerChoose('game')">Консоль и игровая техника</button>
+      <button class="picker-option" onclick="pickerChoose('camera')">Камера и техника для съёмки</button>
+    </div>
+  </div>
+</div>
+
+<div id="cartFloat" class="cart-float" onclick="checkout()" style="display:none">Корзина: 0 ₽</div>
+
+<nav class="bottom">
+  <button class="nav-btn active" data-tab="shop" onclick="loadCatalog()"><strong>⌂</strong><span>Магазин</span></button>
+  <button class="nav-btn" data-tab="orders" onclick="loadOrders()"><strong>→</strong><span>Заказы</span></button>
+  <button class="nav-btn" data-tab="profile" onclick="profile()"><strong>○</strong><span>Профиль</span></button>
+  <button class="nav-btn" data-tab="support" onclick="support()"><strong>?</strong><span>Поддержка</span></button>
+</nav>
+
+<!-- Модалка товара -->
+<div id="modal" class="modal" onclick="if(event.target===this)closeProduct()">
+  <div class="product-sheet" id="productSheet"></div>
+</div>
+
+<!-- Модалка подробностей и трекинга заказа -->
+<div id="orderModal" class="modal" onclick="if(event.target===this)closeOrderModal()">
+  <div class="product-sheet" id="orderSheet"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const HOME = `
+<section class="hero glass">
+  <div class="hero-content">
+    <div class="eyebrow">NOTHING TECH / STORE</div>
+    <h1>Техника<br>Без лишнего</h1>
+    <p>Премиальные устройства, спокойный выбор, доверительный и качественный сервис с быстрой доставой.</p>
+    <div class="tools">
+      <button class="hero-btn" onclick="document.getElementById('catalog').scrollIntoView({behavior:'smooth'})">Смотреть каталог</button>
+      <button class="tool-btn" onclick="openPicker()">Подобрать технику →</button>
+    </div>
+  </div>
+</section>
+
+<section class="trustline">
+  <span>Оригинальная техника</span>
+  <span>Гарантия</span>
+  <span>Проверка перед отправкой</span>
+  <span>Быстрая доставка</span>
+</section>
+
+<section id="catalog" style="margin-top:16px">
+  <div class="section-head">
+    <div>
+      <div class="eyebrow">CATALOG</div>
+      <h2>Сейчас в наличии</h2>
+    </div>
+  </div>
+  <input id="search" class="search" placeholder="Поиск по устройствам...">
+  <div id="categories" class="categories" style="margin-top:6px"></div>
+  <div id="catalogSections"></div>
+</section>`;
+
+const tg = window.Telegram?.WebApp;
+try {
+  tg?.ready();
+  tg?.expand?.();
+  tg?.setHeaderColor?.('#050505');
+  tg?.setBackgroundColor?.('#070707');
+} catch(e) {}
+
+const initData = () => tg?.initData || '';
+const H = () => ({ 'Content-Type': 'application/json', 'X-Telegram-Init-Data': initData() });
+
+let products = [], delivery = [], categories = [], cart = [], activeCategory = 'all';
+let selected = {}, currentTabs = [], currentProduct = null;
+let currentImageIndex = 0;
+let favorites = JSON.parse(localStorage.getItem('nt_favs') || '[]');
+let compareIds = [];
+let activeProfileSubtab = 'orders';
+
+async function api(url, opt = {}) {
+  opt.headers = { ...(opt.headers || {}), ...H() };
+  const r = await fetch(url, opt);
+  if (!r.ok) throw new Error((await r.text()) || ('HTTP ' + r.status));
+  return r.json();
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#039;' }[m]));
+}
+
+function showToast(t) {
+  const e = document.getElementById('toast');
+  e.textContent = t;
+  e.classList.add('show');
+  setTimeout(() => e.classList.remove('show'), 2200);
+}
+
+function setTab(t) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+  const app = document.getElementById('app');
+  app.classList.remove('tab-view');
+  void app.offsetWidth;
+  app.classList.add('tab-view');
+}
+
+function cartTotal() {
+  return cart.reduce((s, x) => s + x.price * x.quantity, 0);
+}
+
+function updateCart() {
+  const total = cartTotal();
+  const el = document.getElementById('cartFloat');
+  if (cart.length > 0) {
+    el.style.display = 'flex';
+    el.textContent = `Корзина: ${total.toFixed(0)} ₽ (${cart.length})`;
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function updateCompareBar() {
+  const el = document.getElementById('compareBar');
+  if (!el) return;
+  el.classList.toggle('show', compareIds.length > 0);
+  el.querySelector('span').textContent = `Сравнение: ${compareIds.length}/2`;
+}
+
+function openPicker() { document.getElementById('picker').classList.add('show'); }
+function closePicker() { document.getElementById('picker').classList.remove('show'); }
+
+function pickerChoose(type) {
+  closePicker();
+  let matches = products;
+  if (type === 'phone') matches = products.filter(p => /iphone|samsung|pixel|phone|смартф/i.test(p.name + ' ' + p.description));
+  if (type === 'game') matches = products.filter(p => /playstation|xbox|switch|game|игр/i.test(p.name + ' ' + p.description));
+  if (type === 'camera') matches = products.filter(p => /sony|canon|nikon|camera|камера/i.test(p.name + ' ' + p.description));
+
+  document.getElementById('app').innerHTML = `
+  <section>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <div class="eyebrow">SMART PICK</div>
+        <h2 style="margin:2px 0 0">Подходящие устройства</h2>
+      </div>
+      <button class="secondary" style="height:30px;padding:0 10px;font-size:10px" onclick="loadCatalog()">Каталог</button>
+    </div>
+    <div class="grid">${matches.slice(0, 8).map(card).join('')}</div>
+  </section>`;
+  setTab('shop');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function openCompare() {
+  if (compareIds.length < 2) return showToast('Выберите 2 товара для сравнения');
+  const list = compareIds.map(id => products.find(p => p.id === id)).filter(Boolean);
+  if (list.length < 2) return showToast('Один из товаров недоступен');
+
+  document.getElementById('app').innerHTML = `
+  <section>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div>
+        <div class="eyebrow">NOTHING TECH / COMPARE</div>
+        <h2 style="margin:2px 0 0">Сравнение</h2>
+      </div>
+      <button class="secondary" style="height:30px;padding:0 10px;font-size:10px" onclick="loadCatalog()">Назад</button>
+    </div>
+
+    <div class="compare-grid">
+      ${list.map(p => {
+        const qty = getProductCartQty(p.id);
+        return `
+        <div class="compare-card glass">
+          <img src="${esc(p.image_url || '')}" onerror="this.style.display='none'">
+          <b style="display:block;margin-top:6px;font-size:11.5px">${esc(p.name)}</b>
+          <div class="price">${Number(p.price).toFixed(0)} ₽</div>${qty > 0 ? `
+            <div class="btn-card-action primary-cart stepper" style="height:28px;margin-top:6px;border-radius:6px">
+              <button class="step-btn" onclick="changeProductQty('${esc(p.id)}', -1)">−</button>
+              <span class="step-val">${qty}</span>
+              <button class="step-btn" onclick="changeProductQty('${esc(p.id)}', 1)">+</button>
+            </div>
+          ` : `
+            <button class="primary" style="height:28px;width:100%;font-size:9.5px;margin-top:6px;border-radius:6px" onclick="quickAddToCart('${esc(p.id)}')">В корзину</button>
+          `}
+        </div>`;
+      }).join('')}
+    </div>
+
+    <div class="panel glass" style="margin-top:10px">
+      ${[
+        ['Категория', list.map(p => (categories.find(c => c.id === p.category_id)?.name) || 'Устройство')],
+        ['Цена', list.map(p => Number(p.price).toFixed(0) + ' ₽')],
+        ['Наличие', list.map(p => (p.stock > 0 ? `В наличии (${p.stock})` : 'Под заказ'))],
+        ['Описание', list.map(p => p.description || '—')]
+      ].map(([k, v]) => `
+        <div class="compare-row">
+          <b>${esc(k)}</b>${v.map(x => `<span>${esc(x)}</span>`).join('')}
+        </div>
+      `).join('')}
+    </div>
+  </section>`;
+
+  setTab('shop');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function syncCart() {
+  if (!initData()) return;
+  try {
+    const res = await api('/api/cart');
+    if (res && Array.isArray(res.cart)) {
+      cart = res.cart;
+      updateCart();
+    }
+  } catch(e) {}
+}
+
+async function saveCart() {
+  updateCart();
+  if (!initData()) return;
+  try {
+    await api('/api/cart', { method: 'POST', body: JSON.stringify({ cart }) });
+  } catch(e) {}
+}
+
+async function syncFavorites() {
+  if (!initData()) return;
+  try {
+    const res = await api('/api/favorites');
+    if (res && Array.isArray(res.favorites)) {
+      favorites = res.favorites;
+      localStorage.setItem('nt_favs', JSON.stringify(favorites));
+      renderCatalog();
+    }
+  } catch(e) {}
+}
+
+async function toggleFavorite(id) {
+  const isFav = favorites.includes(id);
+  if (isFav) {
+    favorites = favorites.filter(x => x !== id);
+    showToast('Удалено из избранного');
+  } else {
+    favorites.push(id);
+    showToast('Добавлено в избранное');
+  }
+  localStorage.setItem('nt_favs', JSON.stringify(favorites));
+  renderCatalog();
+
+  if (initData()) {
+    try {
+      await api('/api/favorites/' + encodeURIComponent(id), { method: 'POST' });
+    } catch(e) {}
+  }
+}
+
+function toggleCompare(id) {
+  if (compareIds.includes(id)) {
+    compareIds = compareIds.filter(x => x !== id);
+    showToast('Убрано из сравнения');
+  } else if (compareIds.length < 2) {
+    compareIds.push(id);
+    showToast('Добавлено к сравнению');
+  } else {
+    showToast('Максимум 2 товара для сравнения');
+  }
+  renderCatalog();
+  updateCompareBar();
+}
+
+function getProductCartQty(id) {
+  return cart.filter(x => x.product_id === id).reduce((s, x) => s + x.quantity, 0);
+}
+
+function areSelectionsEqual(a = {}, b = {}) {
+  const ka = Object.keys(a), kb = Object.keys(b);
+  if (ka.length !== kb.length) return false;
+  return ka.every(k => a[k] === b[k]);
+}
+
+function getConfiguredCartIndex() {
+  if (!currentProduct) return -1;
+  return cart.findIndex(x => x.product_id === currentProduct.id && areSelectionsEqual(x.selections, selected));
+}
+
+function quickAddToCart(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  if (p.has_variants) {
+    detail(id);
+    showToast('Выберите параметры товара');
+    return;
+  }
+  cart.push({ product_id: p.id, quantity: 1, selections: {}, name: p.name, price: Number(p.price || 0) });
+  saveCart();
+  renderCatalog();
+  showToast('Добавлено в корзину');
+}
+
+function changeProductQty(id, delta) {
+  const idx = cart.findIndex(x => x.product_id === id);
+  if (idx === -1) {
+    if (delta > 0) quickAddToCart(id);
+    return;
+  }
+  if (delta < 0) {
+    cart[idx].quantity += delta;
+    if (cart[idx].quantity <= 0) {
+      cart.splice(idx, 1);
+      showToast('Удалено из корзины');
+    }
+  } else {
+    cart[idx].quantity += delta;
+    showToast('Добавлено в корзину');
+  }
+  saveCart();
+  renderCatalog();
+  if (document.getElementById('compareBar')?.classList.contains('show')) openCompare();
+  if (currentProduct && currentProduct.id === id) renderDetailCartAction();
+}
+
+function changeConfiguredQty(delta) {
+  const idx = getConfiguredCartIndex();
+  if (idx === -1) {
+    if (delta > 0) addConfigured();
+    return;
+  }
+  if (delta === -999) {
+    cart.splice(idx, 1);
+    showToast('Удалено из корзины');
+  } else {
+    cart[idx].quantity += delta;
+    if (cart[idx].quantity <= 0) {
+      cart.splice(idx, 1);
+      showToast('Удалено из корзины');
+    }
+  }
+  saveCart();
+  renderCatalog();
+  renderDetailCartAction();
+}
+
+function addConfigured() {
+  const p = currentProduct;
+  if (!p) return;
+  let price = Number(p.price || 0);
+  (p.variants || []).forEach(v => {
+    const o = (v.options || []).find(x => x.value === selected[v.name]);
+    if (o) price += Number(o.price || 0);
+  });
+  const idx = getConfiguredCartIndex();
+  if (idx > -1) {
+    cart[idx].quantity += 1;
+  } else {
+    cart.push({ product_id: p.id, quantity: 1, selections: { ...selected }, name: p.name, price });
+  }
+  saveCart();
+  renderCatalog();
+  renderDetailCartAction();
+  showToast('Товар добавлен в корзину');
+}
+
+function updateCartItemQty(index, delta) {
+  if (!cart[index]) return;
+  cart[index].quantity += delta;
+  if (cart[index].quantity <= 0) {
+    cart.splice(index, 1);
+    showToast('Товар удален из корзины');
+  }
+  saveCart();
+  checkout();
+  renderCatalog();
+}
+
+function removeCartItem(index) {
+  if (!cart[index]) return;
+  cart.splice(index, 1);
+  showToast('Товар удален из корзины');
+  saveCart();
+  checkout();
+  renderCatalog();
+}
+
+function card(p) {
+  const fav = favorites.includes(p.id);
+  const cmp = compareIds.includes(p.id);
+  const inCartQty = getProductCartQty(p.id);
+  return `
+  <article class="card" onclick="detail('${esc(p.id)}')">
+    <div class="card-top">
+      ${cmp ? '<span class="compare-dot" title="Выбрано для сравнения"></span>' : ''}
+      <button class="fav ${fav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${esc(p.id)}')">${fav ? '♥' : '♡'}</button>
+      <div class="card-media">
+        ${p.image_url ? `<img src="${esc(p.image_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">` : ''}
+        <div class="placeholder" style="${p.image_url ? 'display:none' : ''}">NT</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <b>${esc(p.name)}</b>
+      <div class="card-desc">${esc(p.description || '')}</div>
+      <div class="price">${Number(p.price).toFixed(0)} ₽</div>
+      <div class="card-actions">
+        <button class="btn-card-action" onclick="event.stopPropagation();toggleCompare('${esc(p.id)}')">${cmp ? 'В сравн. ✓' : 'Сравнить'}</button>
+        ${inCartQty > 0 ? `
+          <div class="btn-card-action primary-cart stepper" onclick="event.stopPropagation()">
+            <button class="step-btn" onclick="changeProductQty('${esc(p.id)}', -1)">−</button>
+            <span class="step-val">${inCartQty}</span>
+            <button class="step-btn" onclick="changeProductQty('${esc(p.id)}', 1)">+</button>
+          </div>
+        ` : `
+          <button class="btn-card-action primary-cart" onclick="event.stopPropagation();quickAddToCart('${esc(p.id)}')">В корзину</button>
+        `}
+      </div>
+    </div>
+  </article>`;
+}
+
+function renderCategories() {
+  const el = document.getElementById('categories');
+  if (!el) return;
+  el.innerHTML = [['all', 'Все'], ...categories.map(c => [c.id, c.name])].map(([id, n]) => `
+    <button class="cat ${activeCategory === id ? 'active' : ''}" onclick="activeCategory='${esc(id)}';renderCatalog()">${esc(n)}</button>
+  `).join('');
+}
+
+function renderCatalog() {
+  renderCategories();
+  const q = (document.getElementById('search')?.value || '').trim().toLowerCase();
+  let arr = products.filter(p => !q || (p.name + ' ' + p.description).toLowerCase().includes(q));
+  if (activeCategory !== 'all') arr = arr.filter(p => p.category_id === activeCategory);
+
+  const sections = [];
+  if (activeCategory !== 'all') {
+    const c = categories.find(x => x.id === activeCategory);
+    sections.push([c?.name || 'Каталог', arr]);
+  } else {
+    const known = new Set();
+    categories.forEach(c => {
+      const list = arr.filter(p => p.category_id === c.id);
+      if (list.length) { sections.push([c.name, list]); known.add(c.id); }
+    });
+    const other = arr.filter(p => !p.category_id || !known.has(p.category_id));
+    if (other.length) sections.push(['Все устройства', other]);
+  }
+
+  const container = document.getElementById('catalogSections');
+  if (container) {
+    container.innerHTML = sections.length ? sections.map(([n, list]) => `
+      <div style="margin-top:12px">
+        <div class="eyebrow">${esc(n)}</div>
+        <div class="grid">${list.map(card).join('')}</div>
+      </div>
+    `).join('') : '<div class="panel glass" style="text-align:center;color:#888;margin-top:10px">Ничего не найдено.</div>';
+  }
+  updateCart();
+  updateCompareBar();
+}
+
+async function loadCatalog() {
+  setTab('shop');
+  document.getElementById('app').innerHTML = HOME;
+  document.getElementById('search')?.addEventListener('input', renderCatalog);
+  try {
+    const d = await api('/api/catalog');
+    products = d.products || [];
+    delivery = d.delivery || [];
+    categories = d.categories || [];
+    renderCatalog();
+    syncFavorites();
+    syncCart();
+  } catch(e) {
+    document.getElementById('catalogSections').innerHTML = `<div class="panel glass" style="text-align:center"><h3>Ошибка загрузки</h3><p class="muted">${esc(e.message)}</p></div>`;
+  }
+}
+
+function renderDetailCartAction() {
+  const container = document.getElementById('detailCartAction');
+  if (!container) return;
+  const idx = getConfiguredCartIndex();
+  if (idx > -1) {
+    const qty = cart[idx].quantity;
+    container.innerHTML = `
+      <div class="detail-stepper-wrap">
+        <div class="stepper-detail">
+          <button class="step-btn-detail" onclick="changeConfiguredQty(-1)">−</button>
+          <span style="font-weight:900;font-size:10px;color:#000">${qty} шт. в корзине</span>
+          <button class="step-btn-detail" onclick="changeConfiguredQty(1)">+</button>
+        </div>
+        <button class="secondary" style="height:32px;padding:0 7px;font-size:9.5px;border-radius:7px" onclick="changeConfiguredQty(-999)">Убрать</button>
+      </div>`;
+  } else {
+    container.innerHTML = `<button class="primary" style="height:32px;margin-top:6px;font-size:10px;width:100%;border-radius:7px" onclick="addConfigured()">Добавить в корзину</button>`;
+  }
+}
+
+function renderGalleryImage() {
+  if (!currentProduct) return;
+  const imgs = currentProduct.image_urls || (currentProduct.image_url ? [currentProduct.image_url] : []);
+  const el = document.getElementById('galleryImg');
+  const count = document.getElementById('galCount');
+  if (imgs.length > 0) {
+    if (el) el.src = imgs[currentImageIndex];
+    if (count) count.textContent = `${currentImageIndex + 1}/${imgs.length}`;
+  }
+}
+
+function slideGallery(dir) {
+  if (!currentProduct) return;
+  const imgs = currentProduct.image_urls || (currentProduct.image_url ? [currentProduct.image_url] : []);
+  if (imgs.length <= 1) return;
+  currentImageIndex = (currentImageIndex + dir + imgs.length) % imgs.length;
+  renderGalleryImage();
+}
+
+async function detail(id) {
+  try {
+    const p = await api('/api/products/' + encodeURIComponent(id));
+    currentProduct = p;
+    selected = {};
+    currentTabs = p.tabs || [];
+    currentImageIndex = 0;
+    const imgs = p.image_urls || (p.image_url ? [p.image_url] : []);
+
+    let html = `
+    <button class="product-close" onclick="closeProduct()">×</button>
+    
+    <div class="product-top-row">
+      <div class="gallery-wrap">
+        <div class="product-quarter-media">
+          ${imgs.length ? `<img id="galleryImg" src="${esc(imgs[0])}" alt="${esc(p.name)}">` : '<div class="placeholder">NT</div>'}
+        </div>
+        ${imgs.length > 1 ? `
+          <div class="gallery-nav">
+            <button class="gal-btn" onclick="slideGallery(-1)">‹</button>
+            <span class="gal-counter" id="galCount">1/${imgs.length}</span>
+            <button class="gal-btn" onclick="slideGallery(1)">›</button>
+          </div>
+        ` : ''}
+      </div>
+
+      <div class="product-top-info">
+        <div class="eyebrow">NOTHING TECH</div>
+        <h2 class="product-title">${esc(p.name)}</h2>
+        <div class="price">${Number(p.price).toFixed(0)} ₽</div>
+        <div id="detailCartAction"></div>
+      </div>
+    </div>
+
+    <div class="product-bottom-block">
+      <p style="font-size:11px;color:#888;margin:0 0 10px;line-height:1.4">${esc(p.description || '')}</p>
+    `;
+
+    (p.variants || []).forEach(v => {
+      selected[v.name] = v.options?.[0]?.value || '';
+      html += `
+      <div class="variant">
+        <div class="variant-title">${esc(v.name)}</div>
+        <div class="opts">
+          ${(v.options || []).map(o => `
+            <button class="opt ${selected[v.name] === o.value ? 'sel' : ''}" onclick="chooseVariant(this, ${JSON.stringify(v.name)},${JSON.stringify(o.value)})">
+              ${esc(o.value)}${Number(o.price || 0) ? ` · +${Number(o.price).toFixed(0)} ₽` : ''}
+            </button>
+          `).join('')}
+        </div>
+      </div>`;
+    });
+
+    if (currentTabs.length) {
+      html += `
+      <div class="tabs">
+        ${currentTabs.map((t, i) => `
+          <button class="tab ${i === 0 ? 'active' : ''}" onclick="showProductTab(${i}, this)">${esc(t.title)}</button>
+        `).join('')}
+      </div>
+      <div id="tabbody" class="tabbody">${esc(currentTabs[0].content || '')}</div>`;
+    }
+
+    html += `</div>`;
+    document.getElementById('productSheet').innerHTML = html;
+    document.getElementById('modal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+    renderDetailCartAction();
+  } catch(e) {
+    showToast(e.message);
+  }
+}
+
+function chooseVariant(el, name, val) {
+  selected[name] = val;
+  el.parentElement.querySelectorAll('.opt').forEach(x => x.classList.remove('sel'));
+  el.classList.add('sel');
+  renderDetailCartAction();
+}
+
+function showProductTab(i, el) {
+  document.querySelectorAll('#productSheet .tab').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tabbody').textContent = currentTabs[i]?.content || '';
+}
+
+function closeProduct() {
+  document.getElementById('modal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+/* Развернутый трекинг и детализация заказа */
+function getStatusStep(status) {
+  const map = {
+    'new': 1,
+    'waiting_payment': 1,
+    'paid': 2,
+    'processing': 3,
+    'shipped': 4,
+    'delivered': 5,
+    'cancelled': -1
+  };
+  return map[status] || 1;
+}
+
+function renderOrderTracker(status) {
+  if (status === 'cancelled') {
+    return `
+    <div style="background:#1f1212;border:1px solid rgba(255,51,75,0.4);border-radius:10px;padding:10px;text-align:center;margin-bottom:12px">
+      <b style="color:var(--red);font-size:12px">Заказ отменён</b>
+      <div style="font-size:10px;color:#888;margin-top:2px">Свяжитесь с поддержкой, если произошла ошибка.</div>
+    </div>`;
+  }
+
+  const currentStep = getStatusStep(status);
+  const steps = [
+    { title: 'Оформлен', desc: 'Заказ создан и ожидает оплаты' },
+    { title: 'Оплачен', desc: 'Оплата успешно подтверждена' },
+    { title: 'В сборке', desc: 'Упаковываем и готовим технику к отправке' },
+    { title: 'В пути', desc: 'Передан в курьерскую службу доставки' },
+    { title: 'Доставлен', desc: 'Заказ успешно вручен получателю' }
+  ];
+
+  return `
+  <div class="timeline">
+    ${steps.map((s, idx) => {
+      const num = idx + 1;
+      const isDone = num < currentStep;
+      const isActive = num === currentStep;
+      return `
+      <div class="timeline-item ${isDone ? 'done' : ''} ${isActive ? 'active' : ''}">
+        <div class="timeline-dot">${isDone ? '✓' : (isActive ? '●' : num)}</div>
+        <div>
+          <div class="timeline-title" style="${isActive ? 'color:#fff' : (isDone ? 'color:#ccc' : 'color:#555')}">${esc(s.title)}</div>
+          <div class="timeline-sub">${esc(s.desc)}</div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function openOrderDetail(o) {
+  document.getElementById('orderSheet').innerHTML = `
+  <button class="product-close" onclick="closeOrderModal()">×</button>
+  <div class="eyebrow">ORDER DETAILS</div>
+  <h2 style="font-size:18px;margin:2px 0 10px">Заказ #${esc(o.order_id)}</h2>
+  
+  <div class="panel glass" style="margin-bottom:12px">
+    <div style="font-size:10px;color:#888;text-transform:uppercase;font-weight:800;margin-bottom:6px">Статус доставки</div>
+    ${renderOrderTracker(o.status)}
+  </div>
+
+  <div class="panel glass" style="margin-bottom:12px">
+    <div style="font-size:10px;color:#888;text-transform:uppercase;font-weight:800;margin-bottom:6px">Товары в заказе</div>
+    ${(o.items || []).map(x => `
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--line2);font-size:11px">
+        <div>
+          <b>${esc(x.name)}</b> ×${x.quantity}
+          <div style="font-size:9.5px;color:#777">${(x.variants || []).map(v => `${esc(v.name)}: ${esc(v.value)}`).join(' · ')}</div>
+        </div>
+        <span>${Number(x.total || (x.price * x.quantity)).toFixed(0)} ₽</span>
+      </div>
+    `).join('')}
+
+    <div style="margin-top:8px;font-size:11px;display:flex;justify-content:space-between;color:#aaa">
+      <span>Доставка (${esc(o.delivery_name || 'Стандарт')}):</span>
+      <span>${Number(o.delivery_price || 0).toFixed(0)} ₽</span>
+    </div>
+    ${Number(o.discount || 0) > 0 ? `
+      <div style="font-size:11px;display:flex;justify-content:space-between;color:var(--red);margin-top:3px">
+        <span>Скидка:</span>
+        <span>-${Number(o.discount).toFixed(0)} ₽</span>
+      </div>
+    ` : ''}
+    <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--line);font-size:13.5px;font-weight:900;display:flex;justify-content:space-between">
+      <span>Итого:</span>
+      <span>${Number(o.total).toFixed(0)} ₽</span>
+    </div>
+  </div>
+
+  ${o.comment ? `
+    <div class="panel glass">
+      <div style="font-size:10px;color:#888;text-transform:uppercase;font-weight:800;margin-bottom:4px">Комментарий / Адрес</div>
+      <div style="font-size:11px;color:#ddd;line-height:1.4">${esc(o.comment)}</div>
+    </div>
+  ` : ''}
+  `;
+  document.getElementById('orderModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeOrderModal() {
+  document.getElementById('orderModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+/* Профиль */
+async function profile(forceSubtab = null) {
+  setTab('profile');
+  if (forceSubtab) activeProfileSubtab = forceSubtab;
+
+  if (!initData()) {
+    document.getElementById('app').innerHTML = `
+    <section class="panel glass">
+      <div class="eyebrow">NOTHING TECH ACCOUNT</div>
+      <h2>Профиль</h2>
+      <p style="color:#888;font-size:11px">Откройте Mini App через кнопку бота в Telegram для привязки покупок и персонального списка избранного.</p>
+    </section>`;
+    return;
+  }
+
+  try {
+    const d = await api('/api/profile');
+    const u = d.user || {};
+    const s = d.stats || {};
+    const favCount = favorites.length;
+
+    document.getElementById('app').innerHTML = `
+    <section>
+      <div class="panel glass">
+        <div class="eyebrow">NOTHING TECH ID</div>
+        <h2 style="margin:2px 0 2px;font-size:17px">${esc(u.first_name || 'Клиент')}</h2>
+        <div style="color:#777;font-size:10px">@${esc(u.username || '')} · ID: ${u.id || ''}</div>
+      </div>
+
+      <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:8px">
+        <div class="panel glass" style="text-align:center;padding:8px 4px">
+          <b style="font-size:14px">${s.orders || 0}</b>
+          <div style="font-size:8px;color:#777;text-transform:uppercase">Заказов</div>
+        </div>
+        <div class="panel glass" style="text-align:center;padding:8px 4px">
+          <b style="font-size:14px;color:var(--red)">${favCount} ♥</b>
+          <div style="font-size:8px;color:#777;text-transform:uppercase">Избранное</div>
+        </div>
+        <div class="panel glass" style="text-align:center;padding:8px 4px">
+          <b style="font-size:14px">${Number(s.spent || 0).toFixed(0)} ₽</b>
+          <div style="font-size:8px;color:#777;text-transform:uppercase">Сумма</div>
+        </div>
+      </div>
+
+      <div class="profile-subnav">
+        <button class="subtab-btn ${activeProfileSubtab === 'orders' ? 'active' : ''}" onclick="switchProfileTab('orders')">Мои заказы</button>
+        <button class="subtab-btn ${activeProfileSubtab === 'favorites' ? 'active' : ''}" onclick="switchProfileTab('favorites')">Избранное <span style="color:var(--red)">♥</span></button>
+      </div>
+
+      <div id="profileTabContent"></div>
+    </section>`;
+
+    renderProfileSubtabContent();
+  } catch(e) {
+    showToast(e.message);
+  }
+}
+
+function switchProfileTab(tab) {
+  activeProfileSubtab = tab;
+  document.querySelectorAll('.subtab-btn').forEach(b => b.classList.toggle('active', b.textContent.includes(tab === 'orders' ? 'заказы' : 'Избранное')));
+  renderProfileSubtabContent();
+}
+
+async function renderProfileSubtabContent() {
+  const container = document.getElementById('profileTabContent');
+  if (!container) return;
+
+  if (activeProfileSubtab === 'favorites') {
+    const favProducts = products.filter(p => favorites.includes(p.id));
+    if (!favProducts.length) {
+      container.innerHTML = `
+      <div class="panel glass" style="text-align:center;padding:22px 12px">
+        <div style="font-size:20px;margin-bottom:5px;color:var(--red)">♥</div>
+        <b style="font-size:11.5px">В избранном пока пусто</b>
+        <p style="color:#777;font-size:10px;margin:3px 0 0">Нажмите на сердечко в каталоге, чтобы сохранить товар.</p>
+      </div>`;
+      return;
+    }
+    container.innerHTML = `<div class="grid">${favProducts.map(card).join('')}</div>`;
+  } else {
+    try {
+      const orders = await api('/api/orders');
+      container.innerHTML = orders.length ? orders.map(o => `
+        <div class="panel glass" style="margin-bottom:6px;padding:10px;cursor:pointer" onclick='openOrderDetail(${JSON.stringify(o)})'>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <b>#${o.order_id}</b>
+            <span style="font-size:9.5px;padding:2px 6px;border-radius:5px;background:#202020;font-weight:700">${esc(o.status)}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+            <span style="color:#888;font-size:9.5px">${Number(o.total).toFixed(0)} ₽ · ${new Date(o.created_at).toLocaleDateString()}</span>
+            <span style="font-size:9.5px;color:#aaa">Детали и трекинг →</span>
+          </div>
+        </div>
+      `).join('') : '<div class="panel glass" style="text-align:center;color:#777;font-size:10.5px">Заказов пока нет.</div>';
+    } catch(e) {
+      container.innerHTML = '<div class="panel glass">Ошибка загрузки заказов</div>';
+    }
+  }
+}
+
+async function loadOrders() {
+  profile('orders');
+}
+
+/* Корзина */
+async function checkout() {
+  if (!cart.length) {
+    document.getElementById('app').innerHTML = `
+      <section class="panel glass" style="text-align:center;padding:30px 14px">
+        <div style="font-size:22px;margin-bottom:6px">🛒</div>
+        <b>Корзина пуста</b>
+        <p style="color:#777;font-size:11px;margin:6px 0 12px">Выберите устройства в каталоге и добавьте их в корзину.</p>
+        <button class="primary" onclick="loadCatalog()">В каталог</button>
+      </section>`;
+    updateCart();
+    return;
+  }
+  setTab('cart');
+  document.getElementById('app').innerHTML = `
+  <section class="panel glass">
+    <div class="eyebrow">NOTHING TECH / CART</div>
+    <h2 style="margin:2px 0 8px;font-size:17px">Оформление заказа</h2>
+    ${cart.map((x, i) => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--line2);font-size:10.5px">
+        <div style="flex:1;min-width:0;padding-right:8px">
+          <b>${esc(x.name)}</b>
+          <div style="font-size:9px;color:#777">${Object.entries(x.selections).map(([k,v])=>`${esc(k)}: ${esc(v)}`).join(' · ')}</div>
+          <div style="font-size:9px;color:#999;margin-top:2px">${x.price.toFixed(0)} ₽ / шт.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="stepper-cart">
+            <button class="step-btn-cart" onclick="updateCartItemQty(${i}, -1)">−</button>
+            <span style="font-size:10.5px;font-weight:900;min-width:14px;text-align:center">${x.quantity}</span>
+            <button class="step-btn-cart" onclick="updateCartItemQty(${i}, 1)">+</button>
+          </div>
+          <span style="font-weight:900;min-width:50px;text-align:right">${(x.price * x.quantity).toFixed(0)} ₽</span>
+          <button class="btn-remove-cart" onclick="removeCartItem(${i})" title="Удалить товар">×</button>
+        </div>
+      </div>
+    `).join('')}
+    <div style="margin-top:8px;font-size:13.5px;font-weight:900;display:flex;justify-content:space-between">
+      <span>Итого:</span>
+      <span>${cartTotal().toFixed(0)} ₽</span>
+    </div>
+    <input id="email" class="search" type="email" placeholder="Email для чека" style="margin-top:8px">
+    <input id="promo" class="search" type="text" placeholder="Промокод (если есть)" style="margin-top:5px;text-transform:uppercase">
+    <select id="delivery" class="search" style="margin-top:5px">
+      ${delivery.map(d => `<option value="${d.id}">${esc(d.name)} —${Number(d.price).toFixed(0)} ₽</option>`).join('')}
+    </select>
+    <textarea id="comment" class="search" placeholder="Адрес или комментарий к доставке" style="height:54px;padding-top:6px;margin-top:5px"></textarea>
+    <div style="display:flex;gap:5px;margin-top:8px">
+      <button class="primary" style="flex:1" onclick="pay()">Оплатить</button>
+      <button class="secondary" onclick="loadCatalog()">Назад</button>
+    </div>
+  </section>`;
+}
+
+async function pay() {
+  try {
+    const r = await api('/api/orders', {
+      method: 'POST',
+      body: JSON.stringify({
+        items: cart.map(x => ({ product_id: x.product_id, quantity: x.quantity, selections: x.selections })),
+        delivery_id: document.getElementById('delivery').value,
+        promo_code: document.getElementById('promo').value,
+        email: document.getElementById('email').value,
+        comment: document.getElementById('comment').value
+      })
+    });
+    cart = [];
+    saveCart();
+    location.href = r.confirmation_url;
+  } catch(e) {
+    showToast(e.message);
+  }
+}
+
+async function support() {
+  setTab('support');
+  let items = [];
+  try { items = (await api('/api/faq')).items || []; } catch(e) {}
+  document.getElementById('app').innerHTML = `
+  <section class="panel glass">
+    <div class="eyebrow">NOTHING TECH SUPPORT</div>
+    <h2 style="font-size:17px;margin:2px 0 0">Поддержка 24/7</h2>
+    <p style="color:#888;font-size:10.5px;margin:2px 0 6px">Опишите ваш вопрос, мы ответим в Telegram.</p>
+    <textarea id="supportMsg" class="search" placeholder="Ваш вопрос..." style="height:68px;padding-top:6px"></textarea>
+    <button class="primary" style="margin-top:5px;width:100%" onclick="sendSupport()">Отправить обращение</button>
+    <div style="margin-top:12px">
+      <div class="eyebrow">FAQ</div>
+      ${items.map(x => `
+        <details style="padding:7px 0;border-top:1px solid var(--line2)">
+          <summary style="cursor:pointer;font-weight:700;font-size:10.5px">${esc(x.question)}</summary>
+          <p style="color:#999;font-size:10px;margin:5px 0 0;line-height:1.4">${esc(x.answer)}</p>
+        </details>
+      `).join('')}
+    </div>
+  </section>`;
+}
+
+async function sendSupport() {
+  if (!initData()) return showToast('Откройте магазин через бота в Telegram');
+  try {
+    await api('/api/support', { method: 'POST', body: JSON.stringify({ message: document.getElementById('supportMsg').value }) });
+    showToast('Сообщение отправлено');
+    document.getElementById('supportMsg').value = '';
+  } catch(e) {
+    showToast(e.message);
+  }
+}
+
+loadCatalog();
+</script>
+</body>
+</html>

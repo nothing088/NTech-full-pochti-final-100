@@ -1,0 +1,7 @@
+aiogram>=3.24,<4
+fastapi>=0.116,<1
+uvicorn[standard]>=0.35,<1
+pymongo>=4.13,<5
+pydantic-settings>=2.10,<3
+httpx>=0.28,<1
+python-multipart>=0.0.20,<1
